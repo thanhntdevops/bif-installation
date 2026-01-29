@@ -60,12 +60,17 @@ if [ -z "$SOAR_IP" ]; then
     exit 1
 fi
 
-read -p "Nhập SOAR TOKEN: " SOAR_TOKEN
-if [ -z "$SOAR_TOKEN" ]; then
-    log_error "SOAR TOKEN không được để trống!"
+read -p "Nhập SOAR TOKEN cho SIEM: " SOAR_SIEM_TOKEN
+if [ -z "$SOAR_SIEM_TOKEN" ]; then
+    log_error "SOAR SIEM TOKEN không được để trống!"
     exit 1
 fi
 
+read -p "Nhập SOAR TOKEN cho NCS worker: " SOAR_NCS_WORKER_TOKEN
+if [ -z "$SOAR_NCS_WORKER_TOKEN" ]; then
+    log_error "SOAR NCS WORKER TOKEN không được để trống!"
+    exit 1
+fi
 # read -p "Nhập SOAR PROXY URL (https://): " SOAR_PROXY
 # read -p "Nhập SIEM PROXY URL (https://): " SIEM_PROXY
 # 
@@ -131,7 +136,7 @@ fi
 
 # Tạo thư mục init-scripts nếu chưa có
 mkdir -p init-scripts
-mkdir -p logs
+mkdir -p logs logs/fetchAlerts logs/detailsAlerts logs/syncCloseAlert
 sudo chown -R 1000:1000 logs/
 
 # Tạo file cấu hình pg_hba.conf cho Docker network
