@@ -7,7 +7,7 @@ source script/function.sh
 
 IMAGE_DIR="./images"
 COMPOSE_TEMPLATE="template/docker-compose.template.sh"
-ENV_TEMPLATE="template/.env.qradar.template.sh"
+ENV_TEMPLATE="template/env.qradar.template.sh"
 HOSTS_FILE="/etc/hosts"
 DB_NAME=bif
 DB_USER=bif
@@ -132,13 +132,15 @@ fi
 # Tạo thư mục init-scripts nếu chưa có
 mkdir -p init-scripts
 mkdir -p logs
-sudo chown -R 1000:1000 logs
+sudo chown -R 1000:1000 logs/
 
 # Tạo file cấu hình pg_hba.conf cho Docker network
 cat > init-scripts/00-pg_hba.sh <<EOF
 #!/bin/bash
 echo "host all all 172.20.0.0/16 scram-sha-256" >> /var/lib/postgresql/data/pgdata/pg_hba.conf
 EOF
+
+source template/init.sql.sh
 
 cat > init-scripts/redis-users.acl <<EOF
 user default off
@@ -147,11 +149,23 @@ EOF
 
 chmod +x init-scripts/00-pg_hba.sh
 
-source template/.env.qradar.template.sh
-source template/.env.ncssoarworker.template.sh
+source template/env.qradar.template.sh
+source template/env.ncssoar-worker.template.sh
+
+# Tạo .env cho docker-compose
+cat > .env <<EOF
+POSTGRES_ADMIN_USER=postgres
+POSTGRES_ADMIN_PASSWORD=$ADMIN_PASSWORD
+REDIS_PASSWORD=$REDIS_PASSWORD
+EOF
+
 log_info "✓ Environment variables đã được thiết lập"
 source template/docker-compose.template.sh
 log_info "✓ docker-compose.yml đã được thiết lập"
+
+# Tạo .env cho update-config
+source template/env.update-config.template.sh
+log_info "✓ .env cho update-config đã được thiết lập"
 echo -e "\n${YELLOW}Đang khởi động Docker containers...${NC}"
 docker network prune -f
 docker container prune -f
@@ -160,9 +174,5 @@ docker compose up -d
 # Chờ 15 giây để các service khởi động
 log_info "✓ Chờ 15 giây để các service khởi động..."
 sleep 15
-
-# Tạo .env cho update-config
-source template/env.update-config.template.sh
-log_info "✓ .env cho update-config đã được thiết lập"
-
-log_info 
+sudo chmod +x update-config
+./update-config

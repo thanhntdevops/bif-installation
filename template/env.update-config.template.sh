@@ -13,7 +13,7 @@ services:
     Critical: 30
 EOF
 
-cat > .env <<EOF
+cat >> .env <<EOF
 DEBUG=true
 REDIS_HOST=${REDIS_HOST}:6379
 REDIS_USER=${REDIS_USER}

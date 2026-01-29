@@ -42,9 +42,12 @@ services:
     volumes:
       - ./.env.qradar:/app/.env:ro
       - ./logs/fetchAlerts/:/app/logs:rw
-    command: poetry run python fetchAlerts.py
+    command: python fetchAlerts.py
     networks:
       - bif_network
+    depends_on:
+      - postgres
+      - redis
   evn-details-alerts:
     image: ${SERVICE_IMAGES[qradar-integration]}
     container_name: evn-integration-details-alerts
@@ -52,9 +55,12 @@ services:
     volumes:
       - ./.env.qradar:/app/.env:ro
       - ./logs/detailsAlerts/:/app/logs:rw
-    command: poetry run python detailsAlerts.py
+    command: python detailsAlerts.py
     networks:
       - bif_network
+    depends_on:
+      - postgres
+      - redis
   evn-sync-close-alerts:
     image: ${SERVICE_IMAGES[qradar-integration]}
     container_name: evn-integration-syncCloseAlert
@@ -62,9 +68,12 @@ services:
     volumes:
       - ./.env.qradar:/app/.env:ro
       - ./logs/syncCloseAlert/:/app/logs:rw
-    command: poetry run python syncCloseAlert.py
+    command: python syncCloseAlert.py
     networks:
       - bif_network
+    depends_on:
+      - postgres
+      - redis
 
   ncssoar-worker:
     image: ${SERVICE_IMAGES[ncssoar-worker]}
@@ -74,6 +83,11 @@ services:
       - ./.env.ncssoarworker:/app/.env:ro
       - ./logs:/app/logs:rw
     user: 1000:1000
+    networks:
+      - bif_network
+    depends_on:
+      - postgres
+      - redis
 volumes:
   postgres_data:
   redis_data:
