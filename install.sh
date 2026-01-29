@@ -60,17 +60,12 @@ if [ -z "$SOAR_IP" ]; then
     exit 1
 fi
 
-read -p "Nhập SOAR ACCESS ID: " SOAR_ACCESS_ID
-if [ -z "$SOAR_ACCESS_ID" ]; then
-    log_error "SOAR ACCESS ID không được để trống!"
+read -p "Nhập SOAR TOKEN: " SOAR_TOKEN
+if [ -z "$SOAR_TOKEN" ]; then
+    log_error "SOAR TOKEN không được để trống!"
     exit 1
 fi
 
-read -p "Nhập SOAR SECRET KEY (máy chủ chạy SOAR): " SOAR_SECRET_KEY
-if [ -z "$SOAR_SECRET_KEY" ]; then
-    log_error "SOAR SECRET KEY không được để trống!"
-    exit 1
-fi
 # read -p "Nhập SOAR PROXY URL (https://): " SOAR_PROXY
 # read -p "Nhập SIEM PROXY URL (https://): " SIEM_PROXY
 # 
