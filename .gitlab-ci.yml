@@ -1,0 +1,74 @@
+stages:
+  - build
+  - release
+
+variables:
+  GO_VERSION: "1.21"
+  BINARY_NAME: "manage-soar"
+
+# Build for Linux only
+build:linux:
+  stage: build
+  image: golang:${GO_VERSION}
+  script:
+    - cd build
+    - go mod download
+    - make install
+    - ls -lh ../script/${BINARY_NAME}
+  artifacts:
+    name: "${CI_COMMIT_TAG}-soar-installation-linux-amd64"
+    paths:
+      - script/
+      - template/
+      - config/
+      - n8n-workflows/
+      - tools/
+      - image-list.txt
+      - install.sh
+      - prepare.sh
+      - README.md
+    exclude:
+      - build/**/*
+    expire_in: 30 days
+  only:
+    - tags
+
+# Create release when tagging
+release:
+  stage: release
+  # image: gitlab-release-ncs:latest
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs:
+    - build:linux
+  script:
+    - echo "Creating release for ${CI_COMMIT_TAG}"
+  release:
+    tag_name: '${CI_COMMIT_TAG}'
+    description: |
+      ## SOAR Manager Release ${CI_COMMIT_TAG}
+      
+      ### Tải xuống
+      
+      - **${CI_COMMIT_TAG}-soar-installation-linux-amd64**: Tải artifact package bao gồm Binary, Templates, Configs và Installation scripts
+      
+      ### Cách sử dụng
+      
+      1. Giải nén artifact: unzip ${CI_COMMIT_TAG}-soar-installation-linux-amd64.zip
+      2. Chạy binary: cd script && chmod +x manage-soar && ./manage-soar SOAR_DOMAIN OTP
+      
+      ### Nội dung Package
+      
+      - script/ - Binary và scripts
+      - template/ - Template files
+      - config/ - Configuration files
+      - install.sh, prepare.sh - Installation scripts
+      
+      ### Thay đổi
+      
+      Xem chi tiết thay đổi trong commit history.
+    assets:
+      links:
+        - name: '${CI_COMMIT_TAG}-soar-installation-linux-amd64-package'
+          url: '${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_TAG}/download?job=build:linux'
+  only:
+    - tags

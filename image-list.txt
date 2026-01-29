@@ -1,0 +1,4 @@
+postgres: 407869965289.dkr.ecr.ap-southeast-1.amazonaws.com/bif/postgres:14@sha256:e8ff205a96eb845e3f81cf8fedb672982926d88fc23e44cb0d59dbd6c7d83685
+redis: 407869965289.dkr.ecr.ap-southeast-1.amazonaws.com/bif/redis:6.2@sha256:9594fbff4180dbcb6acef7658c429490d2ea67fdec1f863b66b65481baa6997d
+qradar-integration: 407869965289.dkr.ecr.ap-southeast-1.amazonaws.com/bif/qradar-integration:v1.4.0@sha256:cde18282aac63ea785b47ed01697a361bcae4275829715e7c1d0cebd182f2f6c
+ncssoar-worker: 407869965289.dkr.ecr.ap-southeast-1.amazonaws.com/bif/ncssoar-worker:1.2.2@sha256:f794d3df147870a2b02da2b3bb5d4e59026b084640e1c137a199703721cdb91a
