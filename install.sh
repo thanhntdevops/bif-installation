@@ -63,24 +63,23 @@ if [ -z "$SOAR_SIEM_TOKEN" ]; then
     exit 1
 fi
 
+read -p "Nhập SIEM URL (ví dụ: http://<domain>): " SIEM_URL
+if [ -z "$SIEM_URL" ]; then
+    log_error "SIEM URL không được để trống!"
+    exit 1
+fi
+read -p "Nhập SOAR TOKEN cho NCS worker: " SOAR_NCS_WORKER_TOKEN
+if [ -z "$SOAR_NCS_WORKER_TOKEN" ]; then
+    log_error "SOAR NCS WORKER TOKEN không được để trống!"
+    exit 1
+fi
 if [[ "$SIEM_SOLUTION_NAME" == "QRadar" ]]; then
-    read -p "Nhập SOAR TOKEN cho NCS worker: " SOAR_NCS_WORKER_TOKEN
-    if [ -z "$SOAR_NCS_WORKER_TOKEN" ]; then
-        log_error "SOAR NCS WORKER TOKEN không được để trống!"
-        exit 1
-    fi
 
     read -p "Nhập SIEM API KEY (ví dụ: http://<domain>): " SIEM_API_KEY
     if [ -z "$SIEM_API_KEY" ]; then
         log_error "SIEM API KEY không được để trống!"
         exit 1
     fi
-fi
-
-read -p "Nhập SIEM URL (ví dụ: http://<domain>): " SIEM_URL
-if [ -z "$SIEM_URL" ]; then
-    log_error "SIEM URL không được để trống!"
-    exit 1
 fi
 
 if [[ "$SIEM_SOLUTION_NAME" == "PT" ]]; then
