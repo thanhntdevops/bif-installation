@@ -35,9 +35,9 @@ services:
     networks:
       - bif_network
 
-  evn-fetch-alerts:
+  ${TENANT}-fetch-alerts:
     image: ${SERVICE_IMAGES[qradar-integration]}
-    container_name: evn-integration-fetch-alerts
+    container_name: ${TENANT}-integration-fetch-alerts
     restart: unless-stopped
     volumes:
       - ./.env.qradar:/app/.env:ro
@@ -48,9 +48,9 @@ services:
     depends_on:
       - postgres
       - redis
-  evn-details-alerts:
+  ${TENANT}-details-alerts:
     image: ${SERVICE_IMAGES[qradar-integration]}
-    container_name: evn-integration-details-alerts
+    container_name: ${TENANT}-integration-details-alerts
     restart: unless-stopped
     volumes:
       - ./.env.qradar:/app/.env:ro
@@ -61,9 +61,9 @@ services:
     depends_on:
       - postgres
       - redis
-  evn-sync-close-alerts:
+  ${TENANT}-sync-close-alerts:
     image: ${SERVICE_IMAGES[qradar-integration]}
-    container_name: evn-integration-syncCloseAlert
+    container_name: ${TENANT}-integration-syncCloseAlert
     restart: unless-stopped
     volumes:
       - ./.env.qradar:/app/.env:ro
