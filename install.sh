@@ -19,17 +19,6 @@ ADMIN_PASSWORD=$(generate_password)
 DB_PASSWORD=$(generate_password)
 REDIS_PASSWORD=$(generate_password)
 
-# Kiểm tra file template tồn tại
-if [ ! -f "$COMPOSE_TEMPLATE" ]; then
-    log_error "File template $COMPOSE_TEMPLATE không tồn tại!"
-    exit 1
-fi
-
-if [ ! -f "$ENV_TEMPLATE" ]; then
-    log_error "File template $ENV_TEMPLATE không tồn tại!"
-    exit 1
-fi
-
 # Prompt cho domain
 
 read -p "Nhập TENANT (Trùng với mã khách hàng viết thường trên SOAR ví dụ: evn): " TENANT
@@ -46,9 +35,11 @@ fi
 if [[ "$SIEM_SOLUTION" == "1" ]]; then
     SIEM_SOLUTION_NAME="QRadar"
     COMPOSE_TEMPLATE="template/qradar-docker-compose.template.sh"
+    ENV_TEMPLATE="template/env.qradar.template.sh"
 elif [[ "$SIEM_SOLUTION" == "2" ]]; then
     SIEM_SOLUTION_NAME="PT"
     COMPOSE_TEMPLATE="template/pt-docker-compose.template.sh"
+    ENV_TEMPLATE="template/env.pt.template.sh"
 else
     log_error "Lựa chọn SIEM SOLUTION không hợp lệ! Vui lòng chọn 1 hoặc 2."
     exit 1
@@ -137,6 +128,10 @@ if [ ! -f "$COMPOSE_TEMPLATE" ]; then
     exit 1
 fi
 
+if [ ! -f "$ENV_TEMPLATE" ]; then
+    log_error "File template $ENV_TEMPLATE không tồn tại!"
+    exit 1
+fi
 # Kiểm tra thư mục images tồn tại
 if [ -d "$IMAGE_DIR" ] && [ "$(find "$IMAGE_DIR" -maxdepth 1 -name "*.tar" -type f 2>/dev/null | wc -l)" -gt 0 ]; then
    
