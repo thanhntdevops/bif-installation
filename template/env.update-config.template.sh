@@ -1,4 +1,4 @@
-mkdir configs
+mkdir -p configs
 cat > configs/${TENANT}.yaml <<EOF
 tenant: ${TENANT}
 services:
