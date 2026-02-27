@@ -166,6 +166,10 @@ load_images_from_list() {
                 SERVICE_IMAGES[qradar-integration]="$image_full"
                 log_info "✓ Mapped: qradar-integration -> $image_full"
                 ;;
+            pt-integration)
+                SERVICE_IMAGES[pt-integration]="$image_full"
+                log_info "✓ Mapped: pt-integration -> $image_full"
+                ;;
             ncssoar-worker)
                 SERVICE_IMAGES[ncssoar-worker]="$image_full"
                 log_info "✓ Mapped: ncssoar-worker -> $image_full"
@@ -181,7 +185,7 @@ load_images_from_list() {
 
 validate_images() {
     local missing_images=0
-    local required_services=("postgres" "redis" "qradar-integration" "ncssoar-worker")
+    local required_services=("postgres" "redis" "qradar-integration" "pt-integration" "ncssoar-worker")
     
     for service in "${required_services[@]}"; do
         if [ -z "${SERVICE_IMAGES[$service]}" ]; then

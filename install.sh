@@ -19,17 +19,6 @@ ADMIN_PASSWORD=$(generate_password)
 DB_PASSWORD=$(generate_password)
 REDIS_PASSWORD=$(generate_password)
 
-# Kiểm tra file template tồn tại
-if [ ! -f "$COMPOSE_TEMPLATE" ]; then
-    log_error "File template $COMPOSE_TEMPLATE không tồn tại!"
-    exit 1
-fi
-
-if [ ! -f "$ENV_TEMPLATE" ]; then
-    log_error "File template $ENV_TEMPLATE không tồn tại!"
-    exit 1
-fi
-
 # Prompt cho domain
 
 read -p "Nhập TENANT (Trùng với mã khách hàng viết thường trên SOAR ví dụ: evn): " TENANT
@@ -37,17 +26,25 @@ if [ -z "$TENANT" ]; then
     log_error "TENANT không được để trống!"
     exit 1
 fi
-read -p "Nhập SIEM URL (ví dụ: http://<domain>): " SIEM_URL
-if [ -z "$SIEM_URL" ]; then
-    log_error "SIEM URL không được để trống!"
+read -p "Nhập SIEM SOLUTION (1: QRadar, 2: PT): " SIEM_SOLUTION
+if [ -z "$SIEM_SOLUTION" ]; then
+    log_error "SIEM SOLUTION không được để trống!"
     exit 1
 fi
 
-read -p "Nhập SIEM API KEY (ví dụ: http://<domain>): " SIEM_API_KEY
-if [ -z "$SIEM_API_KEY" ]; then
-    log_error "SIEM API KEY không được để trống!"
+if [[ "$SIEM_SOLUTION" == "1" ]]; then
+    SIEM_SOLUTION_NAME="QRadar"
+    COMPOSE_TEMPLATE="template/qradar-docker-compose.template.sh"
+    ENV_TEMPLATE="template/env.qradar.template.sh"
+elif [[ "$SIEM_SOLUTION" == "2" ]]; then
+    SIEM_SOLUTION_NAME="PT"
+    COMPOSE_TEMPLATE="template/pt-docker-compose.template.sh"
+    ENV_TEMPLATE="template/env.pt.template.sh"
+else
+    log_error "Lựa chọn SIEM SOLUTION không hợp lệ! Vui lòng chọn 1 hoặc 2."
     exit 1
 fi
+
 read -p "Nhập SOAR URL (ví dụ: https://soar.ncsgroup.vn): " SOAR_URL
 if [ -z "$SOAR_URL" ]; then
     log_error "SOAR URL không được để trống!"
@@ -66,10 +63,43 @@ if [ -z "$SOAR_SIEM_TOKEN" ]; then
     exit 1
 fi
 
+read -p "Nhập SIEM URL (ví dụ: http://<domain>): " SIEM_URL
+if [ -z "$SIEM_URL" ]; then
+    log_error "SIEM URL không được để trống!"
+    exit 1
+fi
 read -p "Nhập SOAR TOKEN cho NCS worker: " SOAR_NCS_WORKER_TOKEN
 if [ -z "$SOAR_NCS_WORKER_TOKEN" ]; then
     log_error "SOAR NCS WORKER TOKEN không được để trống!"
     exit 1
+fi
+if [[ "$SIEM_SOLUTION_NAME" == "QRadar" ]]; then
+
+    read -p "Nhập SIEM API KEY (ví dụ: http://<domain>): " SIEM_API_KEY
+    if [ -z "$SIEM_API_KEY" ]; then
+        log_error "SIEM API KEY không được để trống!"
+        exit 1
+    fi
+fi
+
+if [[ "$SIEM_SOLUTION_NAME" == "PT" ]]; then
+    read -p "Nhập PT USER: " SIEM_USER
+    if [ -z "$SIEM_USER" ]; then
+        log_error "PT USER không được để trống!"
+        exit 1
+    fi
+
+    read -p "Nhập PT PASSWORD: " SIEM_PASSWORD
+    if [ -z "$SIEM_PASSWORD" ]; then
+        log_error "PT PASSWORD không được để trống!"
+        exit 1
+    fi
+
+    read -p "Nhập PT CLIENT SECRET: " PT_CLIENT_SECRET
+    if [ -z "$PT_CLIENT_SECRET" ]; then
+        log_error "PT CLIENT SECRET không được để trống!"
+        exit 1
+    fi
 fi
 # read -p "Nhập SOAR PROXY URL (https://): " SOAR_PROXY
 # read -p "Nhập SIEM PROXY URL (https://): " SIEM_PROXY
@@ -97,6 +127,10 @@ if [ ! -f "$COMPOSE_TEMPLATE" ]; then
     exit 1
 fi
 
+if [ ! -f "$ENV_TEMPLATE" ]; then
+    log_error "File template $ENV_TEMPLATE không tồn tại!"
+    exit 1
+fi
 # Kiểm tra thư mục images tồn tại
 if [ -d "$IMAGE_DIR" ] && [ "$(find "$IMAGE_DIR" -maxdepth 1 -name "*.tar" -type f 2>/dev/null | wc -l)" -gt 0 ]; then
    
@@ -154,7 +188,7 @@ EOF
 
 chmod +x init-scripts/00-pg_hba.sh
 
-source template/env.qradar.template.sh
+# source template/env.qradar.template.sh
 source template/env.ncssoar-worker.template.sh
 
 # Tạo .env cho docker-compose
@@ -165,8 +199,21 @@ REDIS_PASSWORD=$REDIS_PASSWORD
 EOF
 
 log_info "✓ Environment variables đã được thiết lập"
-source template/docker-compose.template.sh
-log_info "✓ docker-compose.yml đã được thiết lập"
+
+if [[ "$SIEM_SOLUTION_NAME" == "QRadar" ]]; then
+    COMPOSE_TEMPLATE="template/qradar-docker-compose.template.sh"
+    source template/env.qradar.template.sh
+    source template/qradar-docker-compose.template.sh
+    log_info "✓ docker-compose.yml đã được thiết lập"
+elif [[ "$SIEM_SOLUTION_NAME" == "PT" ]]; then
+    COMPOSE_TEMPLATE="template/pt-docker-compose.template.sh"
+    source template/env.pt.template.sh
+    source template/pt-docker-compose.template.sh
+    log_info "✓ docker-compose.yml đã được thiết lập"
+fi
+
+# source template/docker-compose.template.sh
+# log_info "✓ docker-compose.yml đã được thiết lập"
 
 # Tạo .env cho update-config
 source template/env.update-config.template.sh
