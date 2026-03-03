@@ -2,10 +2,11 @@ mkdir -p configs
 cat > configs/${TENANT}.yaml <<EOF
 tenant: ${TENANT}
 services:
-  soarncs:
+  threatconnect:
     output_stream: bif_alerts_analyze
     url: ${SOAR_URL}
-    access_id: ${SOAR_NCS_WORKER_TOKEN}
+    access_id: ${SOAR_ACCESS_ID}
+    secret_key: ${SOAR_SECRET_KEY}
   sla:
     Low: 60
     Medium: 60

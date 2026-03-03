@@ -109,11 +109,11 @@ load_images() {
                     redis)
                         SERVICE_IMAGES[redis]="$image_full"
                         ;;
-                    qradar-integration)
-                        SERVICE_IMAGES[qradar-integration]="$image_full"
+                    arcsight-integration)
+                        SERVICE_IMAGES[arcsight-integration]="$image_full"
                         ;;
-                    ncssoar-worker)
-                        SERVICE_IMAGES[ncssoar-worker]="$image_full"
+                    threatconnect-worker)
+                        SERVICE_IMAGES[threatconnect-worker]="$image_full"
                         ;;
                     *)
                         log_warn "Image $image_name không match với service nào"
@@ -185,7 +185,7 @@ load_images_from_list() {
 
 validate_images() {
     local missing_images=0
-    local required_services=("postgres" "redis" "qradar-integration" "pt-integration" "ncssoar-worker")
+    local required_services=("postgres" "redis" "arcsight-integration" "threatconnect-worker")
     
     for service in "${required_services[@]}"; do
         if [ -z "${SERVICE_IMAGES[$service]}" ]; then

@@ -26,7 +26,7 @@ if [ -z "$TENANT" ]; then
     log_error "TENANT không được để trống!"
     exit 1
 fi
-read -p "Nhập SIEM SOLUTION (1: QRadar, 2: PT): " SIEM_SOLUTION
+read -p "Nhập SIEM SOLUTION (1: QRadar, 2: PT, 3: ARCSIGHT): " SIEM_SOLUTION
 if [ -z "$SIEM_SOLUTION" ]; then
     log_error "SIEM SOLUTION không được để trống!"
     exit 1
@@ -40,6 +40,10 @@ elif [[ "$SIEM_SOLUTION" == "2" ]]; then
     SIEM_SOLUTION_NAME="PT"
     COMPOSE_TEMPLATE="template/pt-docker-compose.template.sh"
     ENV_TEMPLATE="template/env.pt.template.sh"
+elif [[ "$SIEM_SOLUTION" == "3" ]]; then
+    SIEM_SOLUTION_NAME="ARCSIGHT"
+    COMPOSE_TEMPLATE="template/arcsight-docker-compose.template.sh"
+    ENV_TEMPLATE="template/env.arcsight.template.sh"
 else
     log_error "Lựa chọn SIEM SOLUTION không hợp lệ! Vui lòng chọn 1 hoặc 2."
     exit 1
@@ -63,16 +67,28 @@ if [ -z "$SOAR_SIEM_TOKEN" ]; then
     exit 1
 fi
 
+read -p "Nhập SOAR ACCESS ID cho threatconnect worker: " SOAR_ACCESS_ID
+if [ -z "$SOAR_ACCESS_ID" ]; then
+    log_error "SOAR ACCESS ID không được để trống!"
+    exit 1
+fi
+
+read -p "Nhập SOAR SECRET KEY cho threatconnect worker: " SOAR_SECRET_KEY
+if [ -z "$SOAR_SECRET_KEY" ]; then
+    log_error "SOAR SECRET KEY không được để trống!"
+    exit 1
+fi
+
 read -p "Nhập SIEM URL (ví dụ: http://<domain>): " SIEM_URL
 if [ -z "$SIEM_URL" ]; then
     log_error "SIEM URL không được để trống!"
     exit 1
 fi
-read -p "Nhập SOAR TOKEN cho NCS worker: " SOAR_NCS_WORKER_TOKEN
-if [ -z "$SOAR_NCS_WORKER_TOKEN" ]; then
-    log_error "SOAR NCS WORKER TOKEN không được để trống!"
-    exit 1
-fi
+#read -p "Nhập SOAR TOKEN cho NCS worker: " SOAR_NCS_WORKER_TOKEN
+#if [ -z "$SOAR_NCS_WORKER_TOKEN" ]; then
+#    log_error "SOAR NCS WORKER TOKEN không được để trống!"
+#    exit 1
+#fi
 if [[ "$SIEM_SOLUTION_NAME" == "QRadar" ]]; then
 
     read -p "Nhập SIEM API KEY (ví dụ: http://<domain>): " SIEM_API_KEY
@@ -98,6 +114,26 @@ if [[ "$SIEM_SOLUTION_NAME" == "PT" ]]; then
     read -p "Nhập PT CLIENT SECRET: " PT_CLIENT_SECRET
     if [ -z "$PT_CLIENT_SECRET" ]; then
         log_error "PT CLIENT SECRET không được để trống!"
+        exit 1
+    fi
+fi
+
+if [[ "$SIEM_SOLUTION_NAME" == "ARCSIGHT" ]]; then
+    read -p "Nhập ARCSIGHT USER: " SIEM_USER
+    if [ -z "$SIEM_USER" ]; then
+        log_error "ARCSIGHT USER không được để trống!"
+        exit 1
+    fi
+
+    read -p "Nhập ARCSIGHT PASSWORD: " SIEM_PASSWORD
+    if [ -z "$SIEM_PASSWORD" ]; then
+        log_error "ARCSIGHT PASSWORD không được để trống!"
+        exit 1
+    fi
+
+    read -p "Nhập ARCSIGHT QUERY VIEWERS (ví dụ: viewer1,viewer2): " ARCSIGHT_QUERY_VIEWERS
+    if [ -z "$ARCSIGHT_QUERY_VIEWERS" ]; then
+        log_error "ARCSIGHT QUERY VIEWERS không được để trống!"
         exit 1
     fi
 fi
@@ -189,7 +225,8 @@ EOF
 chmod +x init-scripts/00-pg_hba.sh
 
 # source template/env.qradar.template.sh
-source template/env.ncssoar-worker.template.sh
+#source template/env.ncssoar-worker.template.sh
+source template/env.threatconnect-worker.template.sh
 
 # Tạo .env cho docker-compose
 cat > .env <<EOF
@@ -209,6 +246,11 @@ elif [[ "$SIEM_SOLUTION_NAME" == "PT" ]]; then
     COMPOSE_TEMPLATE="template/pt-docker-compose.template.sh"
     source template/env.pt.template.sh
     source template/pt-docker-compose.template.sh
+    log_info "✓ docker-compose.yml đã được thiết lập"
+elif [[ "$SIEM_SOLUTION_NAME" == "ARCSIGHT" ]]; then
+    COMPOSE_TEMPLATE="template/arcsight-docker-compose.template.sh"
+    source template/env.arcsight.template.sh
+    source template/arcsight-docker-compose.template.sh
     log_info "✓ docker-compose.yml đã được thiết lập"
 fi
 
