@@ -57,7 +57,7 @@ if [ -z "$SOAR_IP" ]; then
     exit 1
 fi
 
-read -p "Nhập SOAR TOKEN cho SIEM: " SOAR_SIEM_TOKEN
+read -p "Nhập SOAR TOKEN cho SIEM (Tích hợp luồng quy trình token - xem trên soar): " SOAR_SIEM_TOKEN
 if [ -z "$SOAR_SIEM_TOKEN" ]; then
     log_error "SOAR SIEM TOKEN không được để trống!"
     exit 1
@@ -68,38 +68,16 @@ if [ -z "$SIEM_URL" ]; then
     log_error "SIEM URL không được để trống!"
     exit 1
 fi
-read -p "Nhập SOAR TOKEN cho NCS worker: " SOAR_NCS_WORKER_TOKEN
+read -p "Nhập SOAR TOKEN cho NCS worker (Tích hợp nhận sự việc - xem trên soar): " SOAR_NCS_WORKER_TOKEN
 if [ -z "$SOAR_NCS_WORKER_TOKEN" ]; then
     log_error "SOAR NCS WORKER TOKEN không được để trống!"
     exit 1
 fi
-if [[ "$SIEM_SOLUTION_NAME" == "QRadar" ]]; then
 
-    read -p "Nhập SIEM API KEY (ví dụ: http://<domain>): " SIEM_API_KEY
-    if [ -z "$SIEM_API_KEY" ]; then
-        log_error "SIEM API KEY không được để trống!"
-        exit 1
-    fi
-fi
-
-if [[ "$SIEM_SOLUTION_NAME" == "PT" ]]; then
-    read -p "Nhập PT USER: " SIEM_USER
-    if [ -z "$SIEM_USER" ]; then
-        log_error "PT USER không được để trống!"
-        exit 1
-    fi
-
-    read -p "Nhập PT PASSWORD: " SIEM_PASSWORD
-    if [ -z "$SIEM_PASSWORD" ]; then
-        log_error "PT PASSWORD không được để trống!"
-        exit 1
-    fi
-
-    read -p "Nhập PT CLIENT SECRET: " PT_CLIENT_SECRET
-    if [ -z "$PT_CLIENT_SECRET" ]; then
-        log_error "PT CLIENT SECRET không được để trống!"
-        exit 1
-    fi
+read -p "Nhập SIEM API KEY (api key hoặc personal token. Lấy trên SIEM): " SIEM_API_KEY
+if [ -z "$SIEM_API_KEY" ]; then
+    log_error "SIEM API KEY không được để trống!"
+    exit 1
 fi
 # read -p "Nhập SOAR PROXY URL (https://): " SOAR_PROXY
 # read -p "Nhập SIEM PROXY URL (https://): " SIEM_PROXY
